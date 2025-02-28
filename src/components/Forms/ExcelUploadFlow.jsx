@@ -4,19 +4,19 @@ import MappingStep from "./MappingStep";
 import { Toaster } from "react-hot-toast";
 
 const ExcelUploadFlow = () => {
-    const [step, setStep] = useState(() => {
-        return Number(localStorage.getItem("upload_step")) || 1;
-    });
-
+    const [step, setStep] = useState(() => Number(localStorage.getItem("upload_step")) || 1);
+    const [period, setPeriod] = useState(() => localStorage.getItem("selected_period") || "");
+    const [payroll, setPayRoll] = useState(() => localStorage.getItem("selected_payroll") || "");
+    
     const [fileData, setFileData] = useState(() => {
         const savedFileData = localStorage.getItem("file_data");
         return savedFileData ? JSON.parse(savedFileData) : null;
     });
 
-    useEffect(() => {
-        localStorage.setItem("upload_step", step);
-    }, [step]);
-
+    // Update localStorage when states change
+    useEffect(() => localStorage.setItem("upload_step", step), [step]);
+    useEffect(() => localStorage.setItem("selected_period", period), [period]);
+    useEffect(() => localStorage.setItem("selected_payroll", payroll), [payroll]);
     useEffect(() => {
         if (fileData) {
             localStorage.setItem("file_data", JSON.stringify(fileData));
@@ -36,10 +36,25 @@ const ExcelUploadFlow = () => {
     };
 
     return (
-        <div className="p-[20px] border rounded-lg shadow-md w-full max-w-lg mx-auto">
+        <div className="rounded-lg shadow-md w-full mx-auto">
             <Toaster position="top-right" />
-            {step === 1 && <UploadStep onUploadSuccess={handleUploadSuccess} />}
-            {step === 2 && fileData && <MappingStep fileData={fileData} onPrev={handlePrev} />}
+            {step === 1 && (
+                <UploadStep 
+                    period={period} 
+                    setPeriod={setPeriod} 
+                    payroll={payroll} 
+                    setPayRoll={setPayRoll} 
+                    onUploadSuccess={handleUploadSuccess} 
+                />
+            )}
+            {step === 2 && fileData && (
+                <MappingStep 
+                    fileData={fileData} 
+                    period={period} 
+                    payroll={payroll} 
+                    onPrev={handlePrev} 
+                />
+            )}
         </div>
     );
 };
